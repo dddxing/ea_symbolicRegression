@@ -366,14 +366,12 @@ def mutate_pool(pool: dict, mutate_rate: float)-> dict:
     for i in range(number):
         keys = list(copied_pool.keys())
         random.shuffle(keys)
-        mutant = mutate(copied_pool[keys[0]], mutate_rate=1)
+        mutant = mutate(copied_pool[keys[0]], mutate_rate=0.05)
         y_hat = calculate_y(x_s, equation=mutant)
         mse = calc_mse(y_s, y_hat)
         new_pool[mse] = mutant
     pool = merge(new_pool, copied_pool)
     return pool
-
-
 
 
 def random_search(num, x_s, y_s, depth):
@@ -577,6 +575,19 @@ def evol_algo(num_eval, x_s, y_s, depth, init_pop):
                 y_calculated = calculate_y(x_s, final_equation)
                 errors.append(lowest_error)
 
+                plt.figure(figsize=(10,10))
+                plt.gca().set_aspect('equal')
+                plt.plot(x_s, y_s, 'r--',label="Given Data")
+                plt.plot(x_s,y_calculated, label= "Learning Data")
+                plt.legend()
+                plt.xlim(-1,20)
+                plt.ylim(-2,20)
+                plt.title(f"MSE = {round(lowest_error, 3)}")
+                plt.savefig(f'{path}screenshots/foo_{num_eval - counter}.png', 
+                        bbox_inches='tight')
+                plt.close()
+            
+                
                 with open(f"{path}tmp/ea_curve.txt",'a') as e:
                     e.write(str(num_eval-counter))
                     e.write(', ')
@@ -591,7 +602,7 @@ def evol_algo(num_eval, x_s, y_s, depth, init_pop):
                 with open(f"{path}tmp/ea_equation.txt",'w') as e:
                     for ele in final_equation:
                         e.write(str(ele))
-                        e.write('\n') 
+                        e.write('\n')
 
 
             pool = temp_pool
@@ -668,6 +679,19 @@ def evol_algo_div(num_eval, x_s, y_s, depth, init_pop):
                 y_calculated = calculate_y(x_s, final_equation)
                 errors.append(lowest_error)
 
+                plt.figure(figsize=(10,10))
+                plt.gca().set_aspect('equal')
+                plt.plot(x_s, y_s, 'r--',label="Given Data")
+                plt.plot(x_s,y_calculated, label= "Learning Data")
+                plt.legend()
+                plt.xlim(-1,20)
+                plt.ylim(-2,20)
+                plt.title(f"MSE = {round(lowest_error, 3)}")
+                plt.savefig(f'{path}screenshots/foo_{num_eval - counter}.png', 
+                        bbox_inches='tight')
+                plt.close()
+            
+                
                 with open(f"{path}tmp/ea_d_curve.txt",'a') as e:
                     e.write(str(num_eval-counter))
                     e.write(', ')
@@ -766,11 +790,14 @@ def evol_algo_div_mut(num_eval, x_s, y_s, depth, init_pop, mutate_rate):
                 plt.gca().set_aspect('equal')
                 plt.plot(x_s, y_s, 'r--',label="Given Data")
                 plt.plot(x_s,y_calculated, label= "Learning Data")
-                plt.title(f"MSE = {round(lowest_error, 2)}")
+                plt.legend()
+                plt.xlim(-1,20)
+                plt.ylim(-2,20)
+                plt.title(f"MSE = {round(lowest_error, 3)}")
                 plt.savefig(f'{path}screenshots/foo_{num_eval - counter}.png', 
                         bbox_inches='tight')
                 plt.close()
-                path = "/home/dxing/Desktop/ea_symbolicRegression/"
+                # path = "/home/dxing/Desktop/ea_symbolicRegression/"
                 
                 with open(f"{path}tmp/ea_dm_curve.txt",'a') as e:
                     e.write(str(num_eval-counter))
@@ -804,15 +831,15 @@ def evol_algo_div_mut(num_eval, x_s, y_s, depth, init_pop, mutate_rate):
 # In[710]:
 
 
-res_ea_div_mut = evol_algo_div_mut(num_eval=num_evaluation, x_s=x_s, y_s=y_s, depth=depth, init_pop=20, mutate_rate=0.3)
+res_ea_div_mut = evol_algo_div_mut(num_eval=num_evaluation, x_s=x_s, y_s=y_s, depth=depth, init_pop=20, mutate_rate=0.5)
 # res_ea_div = evol_algo_div(num_eval=num_evaluation, x_s=x_s, y_s=y_s, depth=depth, init_pop=20)
-# res_ea = evol_algo(num_eval=num_evaluation, x_s=x_s, y_s=y_s, depth=depth, init_pop=20)
+# res_ea = evol_algo(num_eval=num_evaluation, x_s=x_s, y_s=y_s, depth=depth, init_pop=100)
 # res_rrhc = random_restart_hill_climber(num_eval=num_evaluation, x_s=x_s, y_s=y_s, depth=8, num_tries=10)
 # res_rmhc = random_mutation_hill_climber(num=num_evaluation, x_s=x_s, y_s=y_s, depth=8)
 # res_rs = random_search(num=num_evaluation, x_s=x_s, y_s=y_s, depth=8)
 
 
-plt.figure(figsize=(10,10))
+# plt.figure(figsize=(10,10))
 # plt.scatter(res_rs[0], res_rs[1], color='purple', label='random search')
 # plt.plot(res_rs[0], res_rs[1], color='purple')
 
@@ -825,28 +852,31 @@ plt.figure(figsize=(10,10))
 # plt.scatter(res_ea[0], res_ea[1], color='green', label='EA')
 # plt.plot(res_ea[0], res_ea[1], color='green')
 
-plt.scatter(res_ea_div_mut[0], res_ea_div_mut[1], color='red', label='EA_mut_div')
-plt.plot(res_ea_div_mut[0], res_ea_div_mut[1], color='red')
+# plt.scatter(res_ea_div[0], res_ea_div[1], color='pink', label='EA with higher diversity')
+# plt.plot(res_ea_div[0], res_ea_div[1], color='pink')
 
-plt.legend()
+# plt.scatter(res_ea_div_mut[0], res_ea_div_mut[1], color='red', label='EA_mut_div')
+# plt.plot(res_ea_div_mut[0], res_ea_div_mut[1], color='red')
 
-plt.ylim(0, 100)
-plt.xscale('log')
-plt.ylabel("Fitness")
-plt.xlabel("Evaluation");
-plt.show()
+# plt.legend()
+
+# plt.ylim(0, 100)
+# plt.xscale('log')
+# plt.ylabel("Fitness")
+# plt.xlabel("Evaluation");
+# plt.show()
 
 
-plt.figure(figsize=(10,10))
-plt.plot(x_s, y_s, label="acutal data");
-# plt.plot(x_s, res_rs[3], label="random search");
-# plt.plot(x_s, res_rrhc[3], label="random restart HC");
-# plt.plot(x_s, res_rmhc[3], label="random mutation HC");
-# plt.plot(x_s, res_ea[3], label="EA");
+# plt.figure(figsize=(10,10))
+# plt.plot(x_s, y_s, label="acutal data");
+# # plt.plot(x_s, res_rs[3], label="random search");
+# # plt.plot(x_s, res_rrhc[3], label="random restart HC");
+# # plt.plot(x_s, res_rmhc[3], label="random mutation HC");
+# # plt.plot(x_s, res_ea[3], label="EA");
 # plt.plot(x_s, res_ea[3], label="EA_div");
-plt.plot(x_s, res_ea_div_mut[3], label="EA_div_mut");
-plt.legend()
-plt.show()
+# # plt.plot(x_s, res_ea_div_mut[3], label="EA_div_mut");
+# plt.legend()
+# plt.show()
 
 
 
@@ -875,7 +905,7 @@ def save_data(result, title):
 # save_data(res_rrhc,title="rrhc")
 # save_data(res_ea,title="ea")
 # save_data(res_ea_div,title="ea with div")
-save_data(res_ea_div_mut,title="ea_div_mut")
+# save_data(res_ea_div_mut,title="ea_div_mut")
 
 
 
