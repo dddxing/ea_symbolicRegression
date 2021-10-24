@@ -13,26 +13,22 @@ import math
 import tqdm
 from datetime import datetime
 
+today = datetime.now()
+d = today.strftime("%Y-%m-%d-%H-%M")
+path = "/home/dxing/Desktop/ea_symbolicRegression/"
+
 
 filename = "data"
 df = pd.read_csv(f'{filename}.txt', header = None, sep=", ", names=["x", 'y'], engine='python')
 operators1 = ['+', '-', '*', '/', 'sin', 'cos', 'const', 'x']
 operators2 = ['const', 'x']
 
-num_evaluation = 500
+num_evaluation = 50000
 depth = 8
 
 x_s = df["x"].to_numpy()
 y_s = df["y"].to_numpy()
 y_s = [float(y) for y in y_s]
-
-df.head()
-
-
-X_train, X_test, y_train, y_test = train_test_split(x_s, y_s, test_size=0.2)
-plt.figure(figsize=(10,10))
-plt.scatter(X_train, y_train,color='blue', marker='x');
-plt.scatter(X_test, y_test,color='orange');
 
 
 # In[614]:
@@ -150,22 +146,6 @@ def mutate(binary_heap, mutate_rate):
     return binaryheap
 
 
-# In[617]:
-
-
-a = random_generate(depth=4)
-a
-
-
-# In[622]:
-
-
-mutate(a, 0.5)
-
-
-# In[545]:
-
-
 def evaluate_binary_heap(binary_heap, x):
     
     """
@@ -222,30 +202,6 @@ def calculate_y(x_s, equation):
         calculated_y.append(res)
     return calculated_y
 
-
-# In[624]:
-
-
-a = random_generate(depth=4)
-b = random_generate(depth=4)
-print(f"a = {a}")
-print(f"b = {b}")
-
-print(f"evaluate a: {evaluate_binary_heap(a, x=2)}")
-print(f"evaluate a: {evaluate_binary_heap(b, x=2)}")
-crossover(a,b)
-
-
-# In[501]:
-
-
-
-equ = ['nah', "+", 'x', 3]
-x = [1,2,3,4,5]
-calculate_y(x, equ)
-
-
-# In[502]:
 
 
 def calculate_mse(y, y_hat):
@@ -576,7 +532,7 @@ def evol_algo(num_eval, x_s, y_s, depth, init_pop):
     counter = num_eval
 
     pool = generate_population(depth=depth, population=init_pop)
-    print(f"pool = {len(pool)}")
+    # print(f"pool = {len(pool)}")
     num_keys = len(pool)
     try:
         while counter > 0 and num_keys > 0:
@@ -595,10 +551,10 @@ def evol_algo(num_eval, x_s, y_s, depth, init_pop):
                 children_pool[calc_mse(y=y_s, y_hat=y_hat_kid1)] = kid1
                 children_pool[calc_mse(y=y_s, y_hat=y_hat_kid2)] = kid2
 
-            print(f"children pool = {len(children_pool)}")
+            # print(f"children pool = {len(children_pool)}")
 
             merge_pool = merge(children_pool, pool)
-            print(f"merged pool = {len(merge_pool)}")
+            # print(f"merged pool = {len(merge_pool)}")
 
             pool = merge_pool
 
@@ -611,7 +567,7 @@ def evol_algo(num_eval, x_s, y_s, depth, init_pop):
 
             for i in range(num_keys): 
                 temp_pool[keys[i]] = pool[keys[i]]
-            print(f"top pool = {len(temp_pool)}")
+            # print(f"top pool = {len(temp_pool)}")
 
             lowest_error = min(half_keys)
             print(f"lowest error = {lowest_error}")
@@ -620,6 +576,23 @@ def evol_algo(num_eval, x_s, y_s, depth, init_pop):
                 final_equation = temp_pool[lowest_error]
                 y_calculated = calculate_y(x_s, final_equation)
                 errors.append(lowest_error)
+
+                with open(f"{path}tmp/ea_curve.txt",'a') as e:
+                    e.write(str(num_eval-counter))
+                    e.write(', ')
+                    e.write(str(lowest_error))
+                    e.write('\n')
+
+                with open(f"{path}tmp/ea_yhat.txt",'w') as e:
+                    for ele in y_calculated:
+                        e.write(str(ele))
+                        e.write('\n')
+
+                with open(f"{path}tmp/ea_equation.txt",'w') as e:
+                    for ele in final_equation:
+                        e.write(str(ele))
+                        e.write('\n') 
+
 
             pool = temp_pool
             counter -= 1
@@ -649,7 +622,7 @@ def evol_algo_div(num_eval, x_s, y_s, depth, init_pop):
     counter = num_eval
 
     pool = generate_population(depth=depth, population=init_pop)
-    print(f"pool = {len(pool)}")
+    # print(f"pool = {len(pool)}")
     num_keys = len(pool)
     try:
         while counter > 0 and num_keys > 0:
@@ -666,10 +639,10 @@ def evol_algo_div(num_eval, x_s, y_s, depth, init_pop):
                 children_pool[calc_mse(y=y_s, y_hat=y_hat_kid1)] = kid1
                 children_pool[calc_mse(y=y_s, y_hat=y_hat_kid2)] = kid2
 
-            print(f"children pool = {len(children_pool)}")
+            # print(f"children pool = {len(children_pool)}")
             
             merge_pool = merge(children_pool, pool)
-            print(f"merged pool = {len(merge_pool)}")
+            # print(f"merged pool = {len(merge_pool)}")
             
             pool = merge_pool
 
@@ -694,6 +667,22 @@ def evol_algo_div(num_eval, x_s, y_s, depth, init_pop):
                 final_equation = temp_pool[lowest_error]
                 y_calculated = calculate_y(x_s, final_equation)
                 errors.append(lowest_error)
+
+                with open(f"{path}tmp/ea_d_curve.txt",'a') as e:
+                    e.write(str(num_eval-counter))
+                    e.write(', ')
+                    e.write(str(lowest_error))
+                    e.write('\n')
+
+                with open(f"{path}tmp/ea_d_yhat.txt",'w') as e:
+                    for ele in y_calculated:
+                        e.write(str(ele))
+                        e.write('\n')
+
+                with open(f"{path}tmp/ea_d_equation.txt",'w') as e:
+                    for ele in final_equation:
+                        e.write(str(ele))
+                        e.write('\n')
 
             pool = temp_pool
             counter -= 1
@@ -724,7 +713,7 @@ def evol_algo_div_mut(num_eval, x_s, y_s, depth, init_pop, mutate_rate):
     counter = num_eval
 
     pool = generate_population(depth=depth, population=init_pop)
-    print(f"pool = {len(pool)}")
+    # print(f"pool = {len(pool)}")
     num_keys = len(pool)
     try:
         while counter > 0 and num_keys > 0:
@@ -741,7 +730,7 @@ def evol_algo_div_mut(num_eval, x_s, y_s, depth, init_pop, mutate_rate):
                 children_pool[calc_mse(y=y_s, y_hat=y_hat_kid1)] = kid1
                 children_pool[calc_mse(y=y_s, y_hat=y_hat_kid2)] = kid2
 
-            print(f"children pool = {len(children_pool)}")
+            # print(f"children pool = {len(children_pool)}")
             
             merge_pool = merge(children_pool, pool)
             
@@ -755,6 +744,7 @@ def evol_algo_div_mut(num_eval, x_s, y_s, depth, init_pop, mutate_rate):
             keys = sorted(pool.keys(), reverse=False)
             half_keys = keys[0:5*(len(keys)//10)] # selection X%
             num_keys = len(half_keys)
+
             if num_keys < init_pop:
                 new_pool = generate_population(depth=depth, population=(init_pop - num_keys)//2)
                 temp_pool = merge(temp_pool, new_pool)
@@ -762,14 +752,43 @@ def evol_algo_div_mut(num_eval, x_s, y_s, depth, init_pop, mutate_rate):
 
             for i in range(num_keys): 
                 temp_pool[keys[i]] = pool[keys[i]]
-            print(f"top pool = {len(temp_pool)}")
+            # print(f"top pool = {len(temp_pool)}")
 
             lowest_error = min(half_keys)
             print(f"lowest error = {lowest_error}")
             if (len(errors) == 0) or (lowest_error < errors[-1]):
+
                 evaluations.append(num_eval - counter)
                 final_equation = temp_pool[lowest_error]
                 y_calculated = calculate_y(x_s, final_equation)
+
+                plt.figure(figsize=(10,10))
+                plt.gca().set_aspect('equal')
+                plt.plot(x_s, y_s, 'r--',label="Given Data")
+                plt.plot(x_s,y_calculated, label= "Learning Data")
+                plt.title(f"MSE = {round(lowest_error, 2)}")
+                plt.savefig(f'{path}screenshots/foo_{num_eval - counter}.png', 
+                        bbox_inches='tight')
+                plt.close()
+                path = "/home/dxing/Desktop/ea_symbolicRegression/"
+                
+                with open(f"{path}tmp/ea_dm_curve.txt",'a') as e:
+                    e.write(str(num_eval-counter))
+                    e.write(', ')
+                    e.write(str(lowest_error))
+                    e.write('\n')
+
+                with open(f"{path}tmp/ea_dm_yhat.txt",'w') as e:
+                    for ele in y_calculated:
+                        e.write(str(ele))
+                        e.write('\n')
+
+                with open(f"{path}tmp/ea_dm_equation.txt",'w') as e:
+                    for ele in final_equation:
+                        e.write(str(ele))
+                        e.write('\n')
+
+
                 errors.append(lowest_error)
 
             pool = temp_pool
@@ -785,7 +804,7 @@ def evol_algo_div_mut(num_eval, x_s, y_s, depth, init_pop, mutate_rate):
 # In[710]:
 
 
-res_ea_div_mut = evol_algo_div_mut(num_eval=num_evaluation, x_s=x_s, y_s=y_s, depth=depth, init_pop=20, mutate_rate=0.5)
+res_ea_div_mut = evol_algo_div_mut(num_eval=num_evaluation, x_s=x_s, y_s=y_s, depth=depth, init_pop=20, mutate_rate=0.3)
 # res_ea_div = evol_algo_div(num_eval=num_evaluation, x_s=x_s, y_s=y_s, depth=depth, init_pop=20)
 # res_ea = evol_algo(num_eval=num_evaluation, x_s=x_s, y_s=y_s, depth=depth, init_pop=20)
 # res_rrhc = random_restart_hill_climber(num_eval=num_evaluation, x_s=x_s, y_s=y_s, depth=8, num_tries=10)
@@ -823,15 +842,17 @@ plt.plot(x_s, y_s, label="acutal data");
 # plt.plot(x_s, res_rs[3], label="random search");
 # plt.plot(x_s, res_rrhc[3], label="random restart HC");
 # plt.plot(x_s, res_rmhc[3], label="random mutation HC");
+# plt.plot(x_s, res_ea[3], label="EA");
 # plt.plot(x_s, res_ea[3], label="EA_div");
 plt.plot(x_s, res_ea_div_mut[3], label="EA_div_mut");
 plt.legend()
+plt.show()
+
 
 
 def save_data(result, title):
-    today = datetime.now()
-    d = today.strftime("%Y-%m-%d-%H-%M")
-    path = "/Users/dxx0511a/Desktop/Columbia/MECS_4510_EA/hw2/output/" 
+
+    path = "/home/dxing/Desktop/ea_symbolicRegression/tmp/" 
     
     df_plot = pd.DataFrame(data={'evaluation': result[0], 'mse': result[1]})
     df_graph = pd.DataFrame(data={"y_cal": result[3]})
