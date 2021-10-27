@@ -2,8 +2,10 @@ from graphics import *
 import math
 import random
 
-filename = "ea_dm_equation.txt"
+# filename = "ea_dm_equation.txt"
+filename = "test.txt"
 levels = [512, 256, 128, 64, 32, 16, 8, 4, 2, 1]
+
 
 def read_equation(filename):
     equations = []
@@ -54,6 +56,7 @@ def build_tree(binary_heap, win):
 
         ptr += 1
     # print(len(locations))
+
 
 def main():
     win = GraphWin("My window", 5000, 2000)
